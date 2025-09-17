@@ -1,0 +1,556 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "*"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        -48
+      ],
+      "id": "1b0295bf-93d5-4536-a25e-06c6adf3a552",
+      "name": "Telegram Trigger",
+      "webhookId": "7efa2d08-9d13-4c81-8ed9-ae3cde3df822",
+      "credentials": {
+        "telegramApi": {
+          "id": "eFeFCUxSsRBQWzKu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -48
+      ],
+      "id": "c5e04ffa-607d-454d-bb34-6acd9510ee18",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "E5LvdG2TODp1ZJ83",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        -48
+      ],
+      "id": "e01cf403-d4f1-4411-a581-8de05eb376d6",
+      "name": "Get a file",
+      "webhookId": "5d211df3-9bbd-428e-a35e-02811a6b81ea",
+      "credentials": {
+        "telegramApi": {
+          "id": "eFeFCUxSsRBQWzKu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "=analyse everything what you see in the image including the color, the situation,number of items or people and all etc..\n\ngive the ai prompt and form a beautiful sentence by taking all the colors,situations,items,objects,persons,relations,and all other etc.. understand them and give me as a neat simple perfect analyse statement.\n\nand also analyse the photo in the point view of like a social photos like actors,political leaders,gods and goddess,or  a cartoon photo and etc and if the photo matches in this point view then describe and mention who is in that photo(their name) about it.\n\ndo not give any other text except the requested text",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -288
+      ],
+      "id": "d6c3f769-0c7a-492b-bc55-2c1f03b384fe",
+      "name": "Analyze image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "E5LvdG2TODp1ZJ83",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[0].file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        -288
+      ],
+      "id": "9c8a3141-9566-433c-973e-bc013e6c5868",
+      "name": "Get a file1",
+      "webhookId": "86f0c4dd-ad37-4bc5-9f3e-744ded2f98d0",
+      "credentials": {
+        "telegramApi": {
+          "id": "eFeFCUxSsRBQWzKu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content.parts[0].text }}\n\n\nin the given ai prompt rephrase it and form a beautiful sentence by taking all the colors,situations,items,objects,persons,relations,and all other etc.. understand them and give me as a neat simple perfect analyse statement.\n\ndo not give any other text except the requested text",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -288
+      ],
+      "id": "902d67cf-9063-45db-92b3-a8040198f1d8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -144
+      ],
+      "id": "cb87fba7-9b28-4468-b098-3d6b2f00c0a2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "E5LvdG2TODp1ZJ83",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.photo[0].file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "146deec0-8f55-414c-a798-7c046db63b20"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f8795408-d675-49b2-a68e-f7c2c4342bd4",
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "62550157-b661-4ec7-8815-44fdc084d8a2",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -192,
+        -64
+      ],
+      "id": "24bcc09a-0179-4b6f-aea8-8cc890921ec8",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}\n\nanalyse the text and answer that what ihe user asked and reply in a professional and polite,respected manner.\n\nexcept answering the text given by the user dont give any other text.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        224
+      ],
+      "id": "8c4404a4-ff06-4028-aed1-01ef6abeb7e7",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        336
+      ],
+      "id": "89854083-757e-4ae2-9920-b11e4e114b11",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "E5LvdG2TODp1ZJ83",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        -288
+      ],
+      "id": "2d64b82a-d653-411b-9d67-00c20c3e1262",
+      "name": "Send a text message",
+      "webhookId": "2d719af1-ea1a-41da-8084-0a03d104584f",
+      "credentials": {
+        "telegramApi": {
+          "id": "eFeFCUxSsRBQWzKu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        -48
+      ],
+      "id": "a0112cb5-46d7-48fb-9a3c-f37422a25395",
+      "name": "Send a text message1",
+      "webhookId": "d823d275-71e3-4f0e-8195-604537a79979",
+      "credentials": {
+        "telegramApi": {
+          "id": "eFeFCUxSsRBQWzKu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        224
+      ],
+      "id": "a0407f3e-ad55-4953-b7e9-860a2258ceda",
+      "name": "Send a text message2",
+      "webhookId": "96437b68-b2c4-4c73-982e-d25b9944d46c",
+      "credentials": {
+        "telegramApi": {
+          "id": "eFeFCUxSsRBQWzKu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.content.parts[0].text }}\n\nanalyse the text as it is the transcribed audio of a user and if the text sounds like asking a question then answer the question in a polite and professional perfect manner \n\nexcept answering the question, do not output any other text.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -48
+      ],
+      "id": "f6910eb4-4e9a-486b-8767-3eea1bbb3d40",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        432,
+        112
+      ],
+      "id": "efe3871c-9178-4bf1-b38d-3b37b428f942",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "E5LvdG2TODp1ZJ83",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file1": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get a file1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c4a8aa85-5a05-46b2-aaf8-978f90dad356",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6f57ea75cf121e0fbb797c22d457b27732b6b0b200b89765bd57d0a4647d38c3"
+  },
+  "id": "XZhS5VhBJGqvimRG",
+  "tags": [
+    {
+      "createdAt": "2025-09-08T07:52:24.081Z",
+      "updatedAt": "2025-09-08T07:52:24.081Z",
+      "id": "x3fE64ULPIMXXjGX",
+      "name": "answer only text..?"
+    }
+  ]
+}
